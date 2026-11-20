@@ -1,26 +1,94 @@
-# React + Vite
+# weather
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> A compact React + Vite weather lookup tool. Search a city, read the conditions.
 
-## Weather API
+```
+ ┌──────────────┐     ┌─────────────┐     ┌──────────────────┐
+ │  Search.jsx  │ ──▶ │  fetch()    │ ──▶ │  OpenWeather API │
+ └──────────────┘     └─────────────┘     └──────────────────┘
+        ▲                                           │
+        └────────────── weather data ◀──────────────┘
+```
 
-The app uses the OpenWeather API. Create a `.env.local` file in the project root and set:
+## Overview
+
+`weather` is a single-page app. The user types a city name in `Search.jsx`, the app calls the OpenWeather API with a key loaded from `import.meta.env`, and the result is rendered on screen.
+
+| Layer     | Choice                    |
+| --------- | ------------------------- |
+| UI        | React                     |
+| Tooling   | Vite (HMR, fast builds)   |
+| Styling   | Material UI + plain CSS   |
+| Data      | OpenWeather REST API      |
+| Lint      | ESLint                    |
+
+## Requirements
+
+- Node.js 18+
+- npm 9+
+- An OpenWeather API key
+
+## Setup
+
+```bash
+npm install
+```
+
+Create `.env.local` in the project root:
 
 ```env
 VITE_OPENWEATHER_API_KEY=your_openweather_api_key
 ```
 
-Do not commit `.env.local`. Vite variables are included in browser code, so restrict the API key with your provider if possible. Rotate any key that was previously shared or committed.
+Read in code as:
 
-Currently, two official plugins are available:
+```js
+const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Security notes
 
-## React Compiler
+1. `.env.local` must stay in `.gitignore`. Check with `git check-ignore .env.local`.
+2. `VITE_*` values ship to the browser. Treat the key as public and restrict it (allowed domains, rate limits) in your OpenWeather dashboard.
+3. If a key was ever committed, revoke it and generate a new one. Removing it from the latest commit is not enough because it remains in Git history.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Usage
 
-## Expanding the ESLint configuration
+```bash
+npm run dev       # development server
+npm run build     # production bundle in dist/
+npm run preview   # serve the built bundle locally
+npm run lint      # run ESLint
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Structure
+
+```
+src/
+  assets/      images, svg
+  App.jsx      layout and state
+  Search.jsx   input + API call
+  main.jsx     React root
+public/        static assets
+.env.example   variable names only, no secrets
+```
+
+## Troubleshooting
+
+| Problem                          | Fix                                                        |
+| -------------------------------- | ---------------------------------------------------------- |
+| `401 Unauthorized` from API      | Key missing or wrong. Check `.env.local`, restart dev server. |
+| Env variable is `undefined`      | Name must start with `VITE_`. Restart after editing.       |
+| New key not picked up            | Vite reads env files at startup, so stop and rerun `npm run dev`. |
+| City not found                   | Check spelling, or add a country code like `Pune,IN`.      |
+| Build output committed by mistake | Add `dist/` to `.gitignore`.                               |
+
+## Contributing
+
+1. Fork and create a branch: `git checkout -b feature/your-change`
+2. Run `npm run lint && npm run build`
+3. Open a pull request with a short description
+
+## License
+
+MIT
